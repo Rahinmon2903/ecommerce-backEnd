@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
 import connectDB from "./Database/dbConfig.js";
+import authRoutes from "./Route/authRoute.js" ;
 
 //config dotenv
 dotenv.config();
@@ -19,6 +20,8 @@ connectDB();
 //middleware
 app.use(express.json());
 app.use(cors());
+
+app.use("/api/auth", authRoutes);
 
 
 //routes
