@@ -67,3 +67,26 @@ export const deleteProduct = async (req, res) => {
     }
 }
 
+//get all products
+export const getAllProducts = async (req, res) => {
+    try {
+        const products = await Product.find().populate("seller", "name")
+        res.status(200).json({message:"All products", products})
+    } catch (error) {
+        res.status(500).json({message:error.message})
+    }
+}
+
+//get by id
+
+export const getProductById = async (req, res) => {
+    try {
+        const product = await Product.findById(req.params.id).populate("seller", "name")
+        if(!product){
+            return res.status(404).json({message:"Product not found"})
+        }
+        res.status(200).json({message:"Product found", product})
+    } catch (error) {
+        res.status(500).json({message:error.message})
+    }
+}
