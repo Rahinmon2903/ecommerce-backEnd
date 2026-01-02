@@ -6,6 +6,7 @@ import connectDB from "./Database/dbConfig.js";
 import authRoutes from "./Route/authRoute.js" ;
 import productRoutes from "./Route/productRoute.js"
 import cartRoutes from "./Route/cartRoute.js"
+import orderRoutes from "./Route/orderRoute.js"
 
 //config dotenv
 dotenv.config();
@@ -26,6 +27,7 @@ app.use(cors());
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);
+app.use("/api/orders", orderRoutes);
 
 
 //routes
