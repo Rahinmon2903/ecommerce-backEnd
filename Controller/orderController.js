@@ -57,4 +57,20 @@ export const getMyOrders=async(req,res)=>{
         
     }
 }
+
+//seller orders only
+
+export const getSellerOrders=async(req,res)=>{
+    try {
+        const orders=await Order.find({"products.productId":{ $exists: true }}).populate("products.productId","name seller").populate("buyer","name email");
+
+        const SellerOrders=orders.filter(order=> order.products.some(p => p.productId.seller.toString() === req.user._id.toString()))
+        res.status(200).json({message:"Orders found", SellerOrders})
+
+        
+    } catch (error) {
+        res.status(500).json({message:error.message})
+        
+    }
+}
    
