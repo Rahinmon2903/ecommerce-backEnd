@@ -1,8 +1,5 @@
 import Cart from "../Model/cartSchema.js";
 
-
-import Cart from "../Model/cartSchema.js";
-
 // add to cart
 export const addToCart = async (req, res) => {
   try {
@@ -43,5 +40,49 @@ export const addToCart = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+//get cart
+
+export const getCart=async(req,res)=>{
+    try {
+        const cart = await Cart.findOne({userId: req.user._id}).populate("products.productId","name price");
+
+        if(!cart){
+            return res.status(404).json({message:"Cart not found"})
+        }
+
+        res.status(200).json({message:"Cart found", cart})
+        
+    } catch (error) {
+        res.status(500).json({message:error.message})
+        
+    }
+}
+
+//remove from cart
+
+export const removeFromCart=async (req,res) => {
+    try {
+         const {productId}=req.params;
+
+    const cart=await Cart.findOne({userId: req.user._id});
+
+    if(!cart){
+        return res.status(404).json({message:"Cart not found"})
+
+    }
+    cart.products=cart.products.filter((item) => item.productId.toString() !== productId);
+
+    await cart.save();
+    res.status(200).json({message:"Product removed from cart successfully", cart})
+    
+        
+    } catch (error) {
+        res.status(500).json({message:error.message})
+        
+    }
+
+   
+}
 
 

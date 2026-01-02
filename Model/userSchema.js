@@ -18,7 +18,13 @@ const userSchema=new mongoose.Schema({
         type: String,
         enum: ['buyer', 'seller'],
         default: 'buyer'
-    }
+    },
+    wishlist: [
+  {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Product"
+  }
+]
 })
 
 const User=mongoose.model("User",userSchema);
