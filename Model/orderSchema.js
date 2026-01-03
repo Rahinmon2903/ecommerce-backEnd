@@ -1,12 +1,12 @@
 import mongoose from "mongoose";
 
 
-const orderSchema=new mongoose.Schema({
+const orderSchema = new mongoose.Schema({
     buyer: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
         required: true
-        
+
     },
     products: [
         {
@@ -25,17 +25,29 @@ const orderSchema=new mongoose.Schema({
         type: Number,
         required: true
     },
+    paymentId: {
+        type: String,
+       
+    },
+    razorpayOrderId: {
+        type: String,
+       
+    },
+    signature: {
+        type: String,
+       
+    },
 
-    
+
     status: {
         type: String,
-        enum: ['pending','paid','shipped', 'delivered', 'cancelled'],
+        enum: ['pending', 'paid', 'shipped', 'delivered', 'cancelled'],
         default: 'pending'
     }
 
 },
-  { timestamps: true }
+    { timestamps: true }
 );
 
-const Order=mongoose.model("Order",orderSchema);
+const Order = mongoose.model("Order", orderSchema);
 export default Order;
