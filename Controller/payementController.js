@@ -1,5 +1,7 @@
 import Order from "../Model/orderSchema.js";
-import razorpay from "../Utils/razorpay.js";
+import razorpay from "../Utils/razorPay.js";
+import crypto from "crypto";
+
 
 // CREATE PAYMENT ORDER
 export const createPaymentOrder = async (req, res) => {
@@ -36,5 +38,37 @@ export const createPaymentOrder = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+export const verifyPayment=async(req,res)=>{
+    try {
+        const {razorpay_payment_id,razorpay_order_id,razorpay_signature,orderId}=req.body;
+
+        const body = razorpay_order_id + "|" + razorpay_payment_id;
+
+        const expectedSignature = crypto.createHmac("sha256",process.env.RAZORPAY_KEY_SECRET).update(body).digest("hex");
+
+        if(expectedSignature !== razorpay_signature ){
+            return res.status(400).json({message:"invalid payment signature"});
+        }
+
+        await Order.findByIdAndUpdate(orderId,{
+            status:"paid",
+            paymentId:razorpay_payment_id,
+            signature:razorpay_signature,
+            razorpayOrderId:razorpay_order_id
+            
+
+        })
+
+        res.status(200).json({message:"Payment verified successfully"})
+
+        
+    } catch (error) {
+        res.status(500).json({message:error.message})
+        
+    }
+}
+
+
 
 
