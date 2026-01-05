@@ -14,36 +14,46 @@ export const placeOrder=async(req,res)=>{
         }
          let totalAmount = 0;
 
-        const productsOrdered=cart.products.map((item)=>{
-        totalAmount += item.productId.price*item.quantity;
-        return{
-            productId:item.productId._id,
-            quantity:item.quantity
+    //  REMOVE BROKEN PRODUCTS
+    const validProducts = cart.products.filter(
+      (item) => item.productId !== null
+    );
 
+    if (validProducts.length === 0) {
+      return res.status(400).json({
+        message: "All products in cart were removed by seller"
+      });
+    }
 
-        };
+    const productsOrdered = validProducts.map((item) => {
+      totalAmount += item.productId.price * item.quantity;
+
+      return {
+        productId: item.productId._id,
+        quantity: item.quantity
+      };
     });
 
-    const createOrder=await Order.create({
-        buyer:req.user._id,
-         products:productsOrdered,
-         totalAmount:totalAmount
+    const createOrder = await Order.create({
+      buyer: req.user._id,
+      products: productsOrdered,
+      totalAmount
+    });
 
-
-    })
-
-    cart.products=[];
-
+    // clear cart
+    cart.products = [];
     await cart.save();
-    res.status(201).json({message:"Order placed successfully", createOrder})
 
-        
-    } catch (error) {
-        res.status(500).json({message:error.message})
-        
-    }
-}
+    res.status(201).json({
+      message: "Order created",
+      createOrder
+    });
 
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
+  }
+};
 //get my orders
 
 export const getMyOrders=async(req,res)=>{
