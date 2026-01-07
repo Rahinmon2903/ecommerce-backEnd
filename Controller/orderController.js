@@ -103,4 +103,54 @@ export const getSellerOrders=async(req,res)=>{
         
     }
 }
-   
+
+//update order
+   export const updateOrderStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+    const { id } = req.params;
+
+    const allowedStatuses = ["pending", "shipped", "delivered", "cancelled"];
+
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({
+        message: "Invalid order status",
+      });
+    }
+
+    const order = await Order.findById(id).populate(
+      "products.productId",
+      "seller"
+    );
+
+    if (!order) {
+      return res.status(404).json({
+        message: "Order not found",
+      });
+    }
+
+    //  Ensure this seller owns at least one product in the order
+    const isSellerOrder = order.products.some(
+      (item) =>
+        item.productId &&
+        item.productId.seller.toString() === req.user._id.toString()
+    );
+
+    if (!isSellerOrder) {
+      return res.status(403).json({
+        message: "You are not authorized to update this order",
+      });
+    }
+
+    order.status = status;
+    await order.save();
+
+    res.status(200).json({
+      message: "Order status updated",
+      order,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
