@@ -1,5 +1,6 @@
 import Product from "../Model/productSchema.js";
 
+
 //create
 export const createProduct = async (req, res) => {
   try {
@@ -90,3 +91,52 @@ export const getProductById = async (req, res) => {
         res.status(500).json({message:error.message})
     }
 }
+
+export const addReview = async (req, res) => {
+  try {
+    const { rating, comment } = req.body;
+
+    if (!rating || !comment) {
+      return res.status(400).json({
+        message: "Rating and comment are required",
+      });
+    }
+
+    const product = await Product.findById(req.params.id);
+
+    if (!product) {
+      return res.status(404).json({
+        message: "Product not found",
+      });
+    }
+
+    // ❌ Prevent duplicate reviews
+    const alreadyReviewed = product.reviews.find(
+      (r) => r.user.toString() === req.user._id.toString()
+    );
+
+    if (alreadyReviewed) {
+      return res.status(400).json({
+        message: "You have already reviewed this product",
+      });
+    }
+
+    const review = {
+      user: req.user._id,
+      name: req.user.name,
+      rating: Number(rating),
+      comment,
+    };
+
+    product.reviews.push(review);
+    await product.save();
+
+    res.status(201).json({
+      message: "Review added successfully",
+      reviews: product.reviews,
+    });
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

@@ -1,6 +1,6 @@
 import express from "express";
-import { authMiddleware, sellerOnly } from "../Middleware/authMiddleware.js";
-import { createProduct, deleteProduct, getAllProducts, getProductById, updateProduct } from "../Controller/productController.js";
+import { authMiddleware, buyerOnly, sellerOnly } from "../Middleware/authMiddleware.js";
+import { addReview, createProduct, deleteProduct, getAllProducts, getProductById, updateProduct } from "../Controller/productController.js";
 
 
 const router = express.Router();
@@ -16,5 +16,13 @@ router.delete("/delete/:id",authMiddleware,sellerOnly,deleteProduct);
 
 router.get("/getdata",getAllProducts);
 router.get("/getById/:id",getProductById);
+
+router.post(
+  "/:id/review",
+  authMiddleware,
+  buyerOnly,
+  addReview
+);
+
 
 export default router;

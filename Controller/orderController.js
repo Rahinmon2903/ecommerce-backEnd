@@ -4,40 +4,57 @@ import Order from "../Model/orderSchema.js";
 
 //place order
 
-export const placeOrder=async(req,res)=>{
-    try {
-        const cart=await Cart.findOne({userId:req.user._id}).populate("products.productId","price");
+export const placeOrder = async (req, res) => {
+  try {
+    const { shippingAddress } = req.body;
 
-        if(!cart || cart.products.length === 0){
-            return res.status(400).json({message:"Cart is empty"});
+    
+    if (
+      !shippingAddress ||
+      !shippingAddress.fullName ||
+      !shippingAddress.phone ||
+      !shippingAddress.addressLine ||
+      !shippingAddress.city ||
+      !shippingAddress.state ||
+      !shippingAddress.postalCode
+    ) {
+      return res.status(400).json({
+        message: "Shipping address is required",
+      });
+    }
 
-        }
-         let totalAmount = 0;
+    const cart = await Cart.findOne({ userId: req.user._id })
+      .populate("products.productId", "price");
 
-    //  REMOVE BROKEN PRODUCTS
+    if (!cart || cart.products.length === 0) {
+      return res.status(400).json({ message: "Cart is empty" });
+    }
+
+    let totalAmount = 0;
+
     const validProducts = cart.products.filter(
       (item) => item.productId !== null
     );
 
     if (validProducts.length === 0) {
       return res.status(400).json({
-        message: "All products in cart were removed by seller"
+        message: "All products were removed by seller",
       });
     }
 
     const productsOrdered = validProducts.map((item) => {
       totalAmount += item.productId.price * item.quantity;
-
       return {
         productId: item.productId._id,
-        quantity: item.quantity
+        quantity: item.quantity,
       };
     });
 
     const createOrder = await Order.create({
       buyer: req.user._id,
       products: productsOrdered,
-      totalAmount
+      totalAmount,
+      shippingAddress, 
     });
 
     // clear cart
@@ -46,7 +63,7 @@ export const placeOrder=async(req,res)=>{
 
     res.status(201).json({
       message: "Order created",
-      createOrder
+      createOrder,
     });
 
   } catch (error) {
@@ -54,6 +71,7 @@ export const placeOrder=async(req,res)=>{
     res.status(500).json({ message: error.message });
   }
 };
+
 //get my orders
 
 export const getMyOrders = async (req, res) => {

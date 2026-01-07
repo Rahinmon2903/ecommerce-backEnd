@@ -8,6 +8,7 @@ import productRoutes from "./Route/productRoute.js"
 import cartRoutes from "./Route/cartRoute.js"
 import orderRoutes from "./Route/orderRoute.js"
 import paymentRoutes from "./Route/paymentRoute.js"
+import wishlistRoutes from "./Route/wishlistRoute.js";
 
 
 //config dotenv
@@ -31,6 +32,7 @@ app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/payment", paymentRoutes);
+app.use("/api/wishlist", wishlistRoutes);
 
 
 //routes
