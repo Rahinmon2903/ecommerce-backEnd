@@ -63,3 +63,51 @@ export const login = async (req, res) => {
   }
 };
 
+//forget password
+
+import crypto from "crypto";
+
+export const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const user = await User.findOne({ email });
+
+    //  Check if user exists
+    if (!user) {
+      return res.status(200).json({
+        message: "If the email exists, a reset link has been sent"
+      });
+    }
+
+    //  Generate token
+    const resetToken = crypto.randomBytes(32).toString("hex");
+
+    // Hash token before saving
+    user.resetToken = crypto
+      .createHash("sha256")
+      .update(resetToken)
+      .digest("hex");
+
+    //  Add expiry (15 minutes)
+    user.resetTokenExpire = Date.now() + 15 * 60 * 1000;
+
+    await user.save();
+
+    const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+
+    await sendEmail(
+      user.email,
+      "Reset Your Password",
+      `Click the link to reset your password:\n${resetUrl}\n\nThis link expires in 15 minutes.`
+    );
+
+    return res.status(200).json({
+      message: "If the email exists, a reset link has been sent"
+    });
+
+  } catch (error) {
+    return res.status(500).json({ message: "Error sending email" });
+  }
+};
+
