@@ -154,3 +154,47 @@ export const getSellerOrders=async(req,res)=>{
   }
 };
 
+export const getSellerStats = async (req, res) => {
+  try {
+    const sellerId = req.user._id;
+
+    // Get paid orders that contain this seller's products
+    const orders = await Order.find({ status: "paid" })
+      .populate("products.productId", "seller price")
+      .sort({ createdAt: -1 });
+
+    // Keep only orders where seller owns at least one product
+    const sellerOrders = orders.filter((order) =>
+      order.products.some(
+        (item) =>
+          item.productId &&
+          item.productId.seller.toString() === sellerId.toString()
+      )
+    );
+
+    let totalRevenue = 0;
+    let totalItemsSold = 0;
+
+    sellerOrders.forEach((order) => {
+      order.products.forEach((item) => {
+        if (
+          item.productId &&
+          item.productId.seller.toString() === sellerId.toString()
+        ) {
+          totalRevenue += item.productId.price * item.quantity;
+          totalItemsSold += item.quantity;
+        }
+      });
+    });
+
+    res.status(200).json({
+      totalRevenue,
+      totalOrders: sellerOrders.length,
+      totalItemsSold,
+      recentOrders: sellerOrders.slice(0, 5),
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+

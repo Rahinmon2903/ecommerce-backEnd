@@ -1,6 +1,6 @@
 import express from "express";
 import { authMiddleware, buyerOnly, sellerOnly } from "../Middleware/authMiddleware.js";
-import { getMyOrders, getSellerOrders, placeOrder, updateOrderStatus } from "../Controller/orderController.js";
+import { getMyOrders, getSellerOrders, getSellerStats, placeOrder, updateOrderStatus } from "../Controller/orderController.js";
 
 
 const router = express.Router();
@@ -13,6 +13,12 @@ router.put(
   authMiddleware,
   sellerOnly,
   updateOrderStatus
+);
+router.get(
+  "/seller-stats",
+  authMiddleware,
+  sellerOnly,
+  getSellerStats
 );
 
 export default router;
