@@ -24,7 +24,15 @@ const userSchema=new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Product"
   }
-]
+],
+resetToken: {
+  type: String,
+  default: null
+},
+resetTokenExpire: {
+  type: Date,
+  default: null
+}
 })
 
 const User=mongoose.model("User",userSchema);
