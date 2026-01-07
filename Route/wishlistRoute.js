@@ -1,15 +1,15 @@
 import express from "express";
-import { authMiddleware, buyerOnly } from "../Middleware/authMiddleware.js";
+import { authMiddleware } from "../Middleware/authMiddleware.js";
 import {
   addToWishlist,
-  removeFromWishlist,
   getWishlist,
+  removeFromWishlist,
 } from "../Controller/wishlistController.js";
 
 const router = express.Router();
 
-router.post("/:productId", authMiddleware, buyerOnly, addToWishlist);
-router.delete("/:productId", authMiddleware, buyerOnly, removeFromWishlist);
-router.get("/", authMiddleware, buyerOnly, getWishlist);
+router.post("/add", authMiddleware, addToWishlist);
+router.get("/", authMiddleware, getWishlist);
+router.delete("/remove/:productId", authMiddleware, removeFromWishlist);
 
 export default router;
