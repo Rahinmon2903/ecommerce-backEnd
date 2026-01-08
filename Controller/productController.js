@@ -4,8 +4,9 @@ import Product from "../Model/productSchema.js";
 //create
 export const createProduct = async (req, res) => {
   try {
+    // getting the inputs
     const { name, description, price, category, stock, images } = req.body;
-
+    // creating a new product
     const product = new Product({
       name,
       description,
@@ -15,7 +16,7 @@ export const createProduct = async (req, res) => {
       images,
       seller: req.user._id
     });
-
+  // saving the product
     await product.save();
 
     res.status(201).json({
@@ -30,15 +31,19 @@ export const createProduct = async (req, res) => {
 //update
 export const updateProduct = async (req, res) => {
     try {
+      // getting the inputs
         const product = await Product.findById(req.params.id)
-
+       // checking if the product exists
         if(!product){
             return res.status(404).json({message:"Product not found"})
         }
 
+       // checking if the user is authorized
         if(product.seller.toString() !== req.user._id.toString()){
            return res.status(403).json({message:"You are not authorized"})
         }
+
+        // updating the product
         const updated = await Product.findByIdAndUpdate(req.params.id, req.body, {
             new: true
         })
@@ -54,13 +59,19 @@ export const updateProduct = async (req, res) => {
 
 export const deleteProduct = async (req, res) => {
     try {
+      // getting product id
         const product = await Product.findById(req.params.id)
+
+        // checking if the product exists
         if(!product){
             return res.status(404).json({message:"Product not found"})
         }
+        // checking if the user is authorized /because only the seller can delete the product
         if(product.seller.toString() !== req.user._id.toString()){
            return res.status(403).json({message:"You are not authorized"})
         }
+
+        // deleting the product
         await Product.findByIdAndDelete(req.params.id)
         res.status(200).json({message:"Product deleted successfully"})
     } catch (error) {
@@ -94,40 +105,45 @@ export const getProductById = async (req, res) => {
 
 export const addReview = async (req, res) => {
   try {
+    // getting the inputs
     const { rating, comment } = req.body;
-
+  // checking if the inputs are valid
     if (!rating || !comment) {
       return res.status(400).json({
         message: "Rating and comment are required",
       });
     }
 
+// getting the product
     const product = await Product.findById(req.params.id);
-
+// checking if the product exists
     if (!product) {
       return res.status(404).json({
         message: "Product not found",
       });
     }
 
-    // ❌ Prevent duplicate reviews
+    //  Prevent duplicate reviews
     const alreadyReviewed = product.reviews.find(
       (r) => r.user.toString() === req.user._id.toString()
     );
 
+// checking if the user has already reviewed the product
     if (alreadyReviewed) {
       return res.status(400).json({
         message: "You have already reviewed this product",
       });
     }
 
+// adding the review
     const review = {
       user: req.user._id,
       name: req.user.name,
       rating: Number(rating),
       comment,
     };
-
+   
+ // adding the review
     product.reviews.push(review);
     await product.save();
 
