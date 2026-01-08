@@ -6,8 +6,10 @@ import sendEmail from "../Utils/sendEmail.js";
 //Register
 export const register = async (req, res) => {
   try {
+    // getting the inputs
     const { name, email, password, role } = req.body;
 
+   //finding whether user is already exist
     const user = await User.findOne({ email });
     if (user) {
       return res.status(400).json({ message: "User already exists" });
@@ -32,18 +34,19 @@ export const register = async (req, res) => {
 //login
 export const login = async (req, res) => {
   try {
+    //getting inputs
     const { email, password } = req.body;
-
+  //finding user
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ message: "Invalid credentials" });
+      return res.status(400).json({ message: "Invalid email" });
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       return res.status(400).json({ message: "Invalid password" });
     }
-
+    //generating token
     const token = jwt.sign(
       { id: user._id, role: user.role },
       process.env.JWT_SECRET,
@@ -116,13 +119,13 @@ export const resetPassword = async (req, res) => {
   const { password } = req.body;
 
   try {
-    //taking the token from url and hashing it
+    //taking the token from url and hashing it because while storing we hashed it
     const hashedToken = crypto
       .createHash("sha256")
       .update(token)
       .digest("hex");
 
-    //checking if the token is valid and it is matching  
+    //checking if the token is valid and it is matching  and token is not expired
     const user = await User.findOne({
       resetToken: hashedToken,
       resetTokenExpire: { $gt: Date.now() }
