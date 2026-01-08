@@ -6,9 +6,10 @@ import Order from "../Model/orderSchema.js";
 
 export const placeOrder = async (req, res) => {
   try {
+    // Destructure req.body
     const { shippingAddress } = req.body;
 
-    
+    // Validate shipping address
     if (
       !shippingAddress ||
       !shippingAddress.fullName ||
@@ -22,16 +23,16 @@ export const placeOrder = async (req, res) => {
         message: "Shipping address is required",
       });
     }
-
+  // Find cart
     const cart = await Cart.findOne({ userId: req.user._id })
       .populate("products.productId", "price");
-
+     // 1 If cart does not exist
     if (!cart || cart.products.length === 0) {
       return res.status(400).json({ message: "Cart is empty" });
     }
-
+// 2️ If cart exists
     let totalAmount = 0;
-
+// Check if all products are valid
     const validProducts = cart.products.filter(
       (item) => item.productId !== null
     );
@@ -41,7 +42,7 @@ export const placeOrder = async (req, res) => {
         message: "All products were removed by seller",
       });
     }
-
+  
     const productsOrdered = validProducts.map((item) => {
       totalAmount += item.productId.price * item.quantity;
       return {
@@ -49,7 +50,7 @@ export const placeOrder = async (req, res) => {
         quantity: item.quantity,
       };
     });
-
+// Create order
     const createOrder = await Order.create({
       buyer: req.user._id,
       products: productsOrdered,
