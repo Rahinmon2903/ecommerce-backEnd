@@ -4,29 +4,43 @@ import Product from "../Model/productSchema.js";
 //create
 export const createProduct = async (req, res) => {
   try {
-    // getting the inputs
-    const { name, description, price, category, stock, images } = req.body;
-    // creating a new product
+    const { name, description, price, category, stock } = req.body;
+
+    // 1️ Validate required fields
+    if (!name || !price || !stock) {
+      return res.status(400).json({
+        message: "Name, price and stock are required",
+      });
+    }
+
+    // 2️ Get image URLs from Cloudinary (via multer)
+    const images = req.files?.map((file) => file.path) || [];
+
+    // 3️ Create product
     const product = new Product({
       name,
       description,
       price,
       category,
       stock,
-      images,
-      seller: req.user._id
+      images,               //  Cloudinary URLs
+      seller: req.user._id, //  seller reference
     });
-  // saving the product
+
+    // 4️ Save
     await product.save();
 
     res.status(201).json({
       message: "Product created successfully",
-      product
+      product,
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({
+      message: error.message,
+    });
   }
 };
+
 
 //update
 export const updateProduct = async (req, res) => {
