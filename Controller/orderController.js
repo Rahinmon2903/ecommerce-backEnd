@@ -157,6 +157,7 @@ export const getSellerOrders=async(req,res)=>{
 
 export const getSellerStats = async (req, res) => {
   try {
+    // Get seller ID
     const sellerId = req.user._id;
 
     // Get paid orders that contain this seller's products
@@ -172,10 +173,10 @@ export const getSellerStats = async (req, res) => {
           item.productId.seller.toString() === sellerId.toString()
       )
     );
-
+    // Calculate stats
     let totalRevenue = 0;
     let totalItemsSold = 0;
-
+   // Loop through orders and finf total revenue and total items sold
     sellerOrders.forEach((order) => {
       order.products.forEach((item) => {
         if (
@@ -188,6 +189,7 @@ export const getSellerStats = async (req, res) => {
       });
     });
 
+   // Return stats
     res.status(200).json({
       totalRevenue,
       totalOrders: sellerOrders.length,
