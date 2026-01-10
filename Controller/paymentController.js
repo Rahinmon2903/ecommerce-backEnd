@@ -1,5 +1,5 @@
 import Order from "../Model/orderSchema.js";
-import razorpay from "../Utils/razorPay.js";
+import razorpay from "../utils/razorpay.js";
 import crypto from "crypto";
 
 
