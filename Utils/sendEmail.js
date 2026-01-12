@@ -8,7 +8,7 @@ const tranEmailApi = new SibApiV3Sdk.TransactionalEmailsApi();
 const sendEmail = async (to, subject, content, isHtml = false) => {
   await tranEmailApi.sendTransacEmail({
     sender: {
-      email: "no-reply@yourapp.com",
+      email: "rahin2903@10424970.brevosend.com",
       name: "E-Commerce",
     },
     to: [{ email: to }],
