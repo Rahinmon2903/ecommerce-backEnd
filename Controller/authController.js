@@ -98,7 +98,7 @@ export const forgotPassword = async (req, res) => {
     await user.save();
 
 
-    const resetUrl = `https://ecommerce-front-bf2krz08k-rahin-mon-ss-projects.vercel.app/reset-password/${resetToken}`;
+    const resetUrl = `https://ecommerce-front-end-mocha.vercel.app/reset-password/${resetToken}`;
 
     const message = `
 Hello ${user.name},
