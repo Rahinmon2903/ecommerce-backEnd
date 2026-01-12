@@ -1,26 +1,22 @@
 import SibApiV3Sdk from "sib-api-v3-sdk";
-import dotenv from "dotenv";
-
-dotenv.config();
 
 const client = SibApiV3Sdk.ApiClient.instance;
-const apiKey = client.authentications["api-key"];
-apiKey.apiKey = process.env.BREVO_API_KEY;
+client.authentications["api-key"].apiKey = process.env.BREVO_API_KEY;
 
 const tranEmailApi = new SibApiV3Sdk.TransactionalEmailsApi();
 
-const sendEmail = async (to, subject, text) => {
-  const emailData = {
+const sendEmail = async (to, subject, content, isHtml = false) => {
+  await tranEmailApi.sendTransacEmail({
     sender: {
-      name: "Rahin Mon",
-      email: process.env.PASS_MAIL,
+      email: "no-reply@yourapp.com",
+      name: "E-Commerce",
     },
     to: [{ email: to }],
     subject,
-    textContent: text,
-  };
-
-  await tranEmailApi.sendTransacEmail(emailData);
+    ...(isHtml
+      ? { htmlContent: content }
+      : { textContent: content }),
+  });
 };
 
 export default sendEmail;

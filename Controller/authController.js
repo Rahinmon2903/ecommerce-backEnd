@@ -101,23 +101,40 @@ export const forgotPassword = async (req, res) => {
     //  SAFE URL BUILDING
     const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
 
-    //  NO LINE BREAK INSIDE URL
-    const message = `
-You requested a password reset.
-
-Click the link below to reset your password:
-${resetUrl}
-
-This link will expire in 15 minutes.
-
-If you did not request this, please ignore this email.
-    `.trim();
+    const htmlMessage = `
+  <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+    <h2>Password Reset</h2>
+    <p>You requested a password reset.</p>
+    <p>
+      <a 
+        href="${resetUrl}" 
+        style="
+          display: inline-block;
+          padding: 10px 16px;
+          background-color: #000;
+          color: #fff;
+          text-decoration: none;
+          border-radius: 6px;
+          font-weight: bold;
+        "
+      >
+        Reset Password
+      </a>
+    </p>
+    <p>This link will expire in <strong>15 minutes</strong>.</p>
+    <p>If you did not request this, please ignore this email.</p>
+  </div>
+`;
 
     await sendEmail(
       user.email,
       "Reset Your Password",
-      message
+      htmlMessage,
+      true
     );
+
+
+
 
     return res.status(200).json({
       message: "If the email exists, a reset link has been sent",
