@@ -11,7 +11,7 @@ export const register = async (req, res) => {
     // getting the inputs
     const { name, email, password, role } = req.body;
 
-   //finding whether user is already exist
+    //finding whether user is already exist
     const user = await User.findOne({ email });
     if (user) {
       return res.status(400).json({ message: "User already exists" });
@@ -23,7 +23,7 @@ export const register = async (req, res) => {
       name,
       email,
       password: hashedPassword,
-      role   
+      role
     });
 
     res.status(201).json({ message: "User registered successfully" });
@@ -38,7 +38,7 @@ export const login = async (req, res) => {
   try {
     //getting inputs
     const { email, password } = req.body;
-  //finding user
+    //finding user
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({ message: "Invalid email" });
@@ -71,7 +71,6 @@ export const login = async (req, res) => {
 //forget password
 
 
-
 export const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
@@ -85,24 +84,25 @@ export const forgotPassword = async (req, res) => {
       });
     }
 
-    // Generate token
+    // Generate reset token
     const resetToken = crypto.randomBytes(32).toString("hex");
 
-    // Hash token before saving
+    // Hash token before saving to DB
     user.resetToken = crypto
       .createHash("sha256")
       .update(resetToken)
       .digest("hex");
 
-    user.resetTokenExpire = Date.now() + 15 * 60 * 1000;
+    user.resetTokenExpire = Date.now() + 15 * 60 * 1000; // 15 minutes
 
     await user.save();
 
-    //  SAFE URL BUILDING
-    const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
 
-    //  NO LINE BREAK INSIDE URL
+    const resetUrl = `https://ecommerce-front-bf2krz08k-rahin-mon-ss-projects.vercel.app/reset-password/${resetToken}`;
+
     const message = `
+Hello ${user.name},
+
 You requested a password reset.
 
 Click the link below to reset your password:
@@ -111,7 +111,7 @@ ${resetUrl}
 This link will expire in 15 minutes.
 
 If you did not request this, please ignore this email.
-    `.trim();
+`;
 
     await sendEmail(
       user.email,
@@ -133,7 +133,8 @@ If you did not request this, please ignore this email.
 
 
 
-   
+
+
 //reset
 export const resetPassword = async (req, res) => {
   const { token } = req.params;
@@ -151,17 +152,17 @@ export const resetPassword = async (req, res) => {
       resetToken: hashedToken,
       resetTokenExpire: { $gt: Date.now() }
     });
- //checking if the user exists
+    //checking if the user exists
     if (!user) {
       return res.status(400).json({
         message: "Invalid or expired reset link"
       });
     }
-//setting the new password
+    //setting the new password
     user.password = await bcrypt.hash(password, 10);
     user.resetToken = null;
     user.resetTokenExpire = null;
-//saving
+    //saving
     await user.save();
 
     return res.status(200).json({
