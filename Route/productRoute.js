@@ -1,6 +1,6 @@
 import express from "express";
 import { authMiddleware, buyerOnly, sellerOnly } from "../Middleware/authMiddleware.js";
-import { addReview, createProduct, deleteProduct, getAllProducts, getProductById, updateProduct } from "../Controller/productController.js";
+import { addReview, createProduct, deleteProduct, getAllProducts, getProductById, getSellerProducts, updateProduct } from "../Controller/productController.js";
 import upload from "../Middleware/upload.js";
 
 
@@ -17,6 +17,12 @@ router.delete("/delete/:id",authMiddleware,sellerOnly,deleteProduct);
 
 router.get("/getdata",getAllProducts);
 router.get("/getById/:id",getProductById);
+router.get(
+  "/seller",
+  authMiddleware,
+  sellerOnly,
+  getSellerProducts
+);
 
 router.post(
   "/:id/review",

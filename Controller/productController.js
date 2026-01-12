@@ -170,3 +170,19 @@ export const addReview = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+//seller products
+export const getSellerProducts = async (req, res) => {
+  try {
+    const products = await Product.find({
+      seller: req.user._id,
+    }).sort({ createdAt: -1 });
+
+    res.status(200).json({
+      count: products.length,
+      products,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
