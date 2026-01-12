@@ -11,7 +11,7 @@ export const register = async (req, res) => {
     // getting the inputs
     const { name, email, password, role } = req.body;
 
-    //finding whether user is already exist
+   //finding whether user is already exist
     const user = await User.findOne({ email });
     if (user) {
       return res.status(400).json({ message: "User already exists" });
@@ -23,7 +23,7 @@ export const register = async (req, res) => {
       name,
       email,
       password: hashedPassword,
-      role
+      role   
     });
 
     res.status(201).json({ message: "User registered successfully" });
@@ -38,7 +38,7 @@ export const login = async (req, res) => {
   try {
     //getting inputs
     const { email, password } = req.body;
-    //finding user
+  //finding user
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({ message: "Invalid email" });
@@ -101,40 +101,23 @@ export const forgotPassword = async (req, res) => {
     //  SAFE URL BUILDING
     const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
 
-    const htmlMessage = `
-  <div style="font-family: Arial, sans-serif; line-height: 1.6;">
-    <h2>Password Reset</h2>
-    <p>You requested a password reset.</p>
-    <p>
-      <a 
-        href="${resetUrl}" 
-        style="
-          display: inline-block;
-          padding: 10px 16px;
-          background-color: #000;
-          color: #fff;
-          text-decoration: none;
-          border-radius: 6px;
-          font-weight: bold;
-        "
-      >
-        Reset Password
-      </a>
-    </p>
-    <p>This link will expire in <strong>15 minutes</strong>.</p>
-    <p>If you did not request this, please ignore this email.</p>
-  </div>
-`;
+    //  NO LINE BREAK INSIDE URL
+    const message = `
+You requested a password reset.
+
+Click the link below to reset your password:
+${resetUrl}
+
+This link will expire in 15 minutes.
+
+If you did not request this, please ignore this email.
+    `.trim();
 
     await sendEmail(
       user.email,
       "Reset Your Password",
-      htmlMessage,
-      true
+      message
     );
-
-
-
 
     return res.status(200).json({
       message: "If the email exists, a reset link has been sent",
@@ -150,8 +133,8 @@ export const forgotPassword = async (req, res) => {
 
 
 
-
-//rest password
+   
+//reset
 export const resetPassword = async (req, res) => {
   const { token } = req.params;
   const { password } = req.body;
@@ -168,17 +151,17 @@ export const resetPassword = async (req, res) => {
       resetToken: hashedToken,
       resetTokenExpire: { $gt: Date.now() }
     });
-    //checking if the user exists
+ //checking if the user exists
     if (!user) {
       return res.status(400).json({
         message: "Invalid or expired reset link"
       });
     }
-    //setting the new password
+//setting the new password
     user.password = await bcrypt.hash(password, 10);
     user.resetToken = null;
     user.resetTokenExpire = null;
-    //saving
+//saving
     await user.save();
 
     return res.status(200).json({
