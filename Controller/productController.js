@@ -14,6 +14,25 @@ export const createProduct = async (req, res) => {
     }
 
     // 2️ Get image URLs from Cloudinary (via multer)
+    /*
+    req.files = [
+  {
+    fieldname: "images",
+    originalname: "shoe.jpg",
+    encoding: "7bit",
+    mimetype: "image/jpeg",
+
+    path: "https://res.cloudinary.com/demo/image/upload/v123/shoe.jpg",
+
+    size: 183729,
+
+    filename: "abc123.jpg"
+  }
+]
+  we only getting the path and storing it in images array
+  why array because we can also add more images
+    */
+    
     const images = req.files?.map((file) => file.path) || [];
 
     // 3️ Create product
@@ -58,6 +77,13 @@ export const updateProduct = async (req, res) => {
         }
 
         // updating the product
+        /* if we do realworld product do not use req.body because am hacken can acced and change the seller id etc use
+        {
+    name: req.body.name,
+    price: req.body.price,
+    stock: req.body.stock
+  },
+        */
         const updated = await Product.findByIdAndUpdate(req.params.id, req.body, {
             new: true
         })
@@ -96,6 +122,15 @@ export const deleteProduct = async (req, res) => {
 //get all products
 export const getAllProducts = async (req, res) => {
     try {
+      /* we are using populate so in front-end we can we additional info which is not in product schema
+      {products.map((p) => (
+  <div key={p._id}>
+    <h3>{p.name}</h3>
+
+    <p>Seller: {p.seller?.name}</p>
+  </div>
+))}
+  */
         const products = await Product.find().populate("seller", "name")
         res.status(200).json({message:"All products", products})
     } catch (error) {
@@ -107,6 +142,7 @@ export const getAllProducts = async (req, res) => {
 
 export const getProductById = async (req, res) => {
     try {
+      //same concept i mentioned above
         const product = await Product.findById(req.params.id).populate("seller", "name")
         if(!product){
             return res.status(404).json({message:"Product not found"})
@@ -137,7 +173,7 @@ export const addReview = async (req, res) => {
       });
     }
 
-    //  Prevent duplicate reviews
+    //  Prevent duplicate reviews from the same user
     const alreadyReviewed = product.reviews.find(
       (r) => r.user.toString() === req.user._id.toString()
     );
@@ -158,6 +194,7 @@ export const addReview = async (req, res) => {
     };
    
  // adding the review
+ //we are using push because review is an array
     product.reviews.push(review);
     await product.save();
 
