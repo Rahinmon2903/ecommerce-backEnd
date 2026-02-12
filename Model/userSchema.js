@@ -19,6 +19,7 @@ const userSchema=new mongoose.Schema({
         enum: ['buyer', 'seller'],
         default: 'buyer'
     },
+    //because user can have multiple product in there wishlist so we used array of object
     wishlist: [
   {
     type: mongoose.Schema.Types.ObjectId,

@@ -18,7 +18,7 @@ export const register = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-
+// while register we are adding role different from other project
     await User.create({
       name,
       email,
