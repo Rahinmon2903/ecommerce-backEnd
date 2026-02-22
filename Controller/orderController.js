@@ -91,19 +91,31 @@ export const getMyOrders = async (req, res) => {
 
 //seller orders only
 
-export const getSellerOrders=async(req,res)=>{
-    try {
-        const orders=await Order.find({"products.productId":{ $exists: true }}).populate("products.productId","name seller").populate("buyer","name email");
+export const getSellerOrders = async (req, res) => {
+  try {
+    const orders = await Order.find({
+      "products.productId": { $exists: true }
+    })
+      .populate("products.productId", "name seller")
+      .populate("buyer", "name email");
 
-        const SellerOrders=orders.filter(order=> order.products.some(p => p.productId.seller.toString() === req.user._id.toString()))
-        res.status(200).json({message:"Orders found", SellerOrders})
+    const SellerOrders = orders.filter(order =>
+      order.products.some(p =>
+        p.productId &&   // ✅ prevents crash
+        p.productId.seller.toString() === req.user._id.toString()
+      )
+    );
 
-        
-    } catch (error) {
-        res.status(500).json({message:error.message})
-        
-    }
-}
+    res.status(200).json({
+      message: "Orders found",
+      SellerOrders
+    });
+
+  } catch (error) {
+    console.error("Seller Orders Error:", error); // ✅ KEEP THIS
+    res.status(500).json({ message: error.message });
+  }
+};
 
 //update order
    export const updateOrderStatus = async (req, res) => {

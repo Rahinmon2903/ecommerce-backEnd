@@ -62,6 +62,16 @@ export const createProduct = async (req, res) => {
 
 
 //update
+/*
+Okay, okay, now I get that in Postman we can able to send multiple
+ data instead of what we chosen, right? So they can update, okay
+ .In front-end, we have an access like we can able to select what
+  we need to update, like name, description, that field only 
+  updated because in UI, we only give that option. But in Postman
+   and Hacker can able to change anything. So if the backend 
+   doesn't know what is that, so in backend, we give request 
+   from body, it can able to update anything. So the ID, anything
+    can be changed.*/
 export const updateProduct = async (req, res) => {
     try {
       // getting the inputs
