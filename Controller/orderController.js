@@ -101,7 +101,7 @@ export const getSellerOrders = async (req, res) => {
 
     const SellerOrders = orders.filter(order =>
       order.products.some(p =>
-        p.productId &&   // ✅ prevents crash
+        p.productId &&   //  prevents crash
         p.productId.seller.toString() === req.user._id.toString()
       )
     );
@@ -112,7 +112,7 @@ export const getSellerOrders = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Seller Orders Error:", error); // ✅ KEEP THIS
+    console.error("Seller Orders Error:", error); //  KEEP THIS
     res.status(500).json({ message: error.message });
   }
 };
@@ -142,7 +142,7 @@ export const getSellerOrders = async (req, res) => {
       });
     }
 
-    //  Ensure this seller owns at least one product in the order
+    //  the seller can only update it
     const isSellerOrder = order.products.some(
       (item) =>
         item.productId &&
