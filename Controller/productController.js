@@ -15,6 +15,17 @@ export const createProduct = async (req, res) => {
 
     // 2️ Get image URLs from Cloudinary (via multer)
     /*
+
+    Frontend → send file (form-data)
+        ↓
+    Multer → extracts file → req.file
+        ↓
+    Your backend → uploads file to Cloudinary
+        ↓
+    Cloudinary → returns URL
+        ↓
+You save URL in DB
+
     req.files = [
   {
     fieldname: "images",
@@ -32,7 +43,7 @@ export const createProduct = async (req, res) => {
   we only getting the path and storing it in images array
   why array because we can also add more images
     */
-    
+
     const images = req.files?.map((file) => file.path) || [];
 
     // 3️ Create product
@@ -73,111 +84,111 @@ Okay, okay, now I get that in Postman we can able to send multiple
    from body, it can able to update anything. So the ID, anything
     can be changed.*/
 export const updateProduct = async (req, res) => {
-    try {
-      // getting the inputs
-        const product = await Product.findById(req.params.id)
-       // checking if the product exists
-        if(!product){
-            return res.status(404).json({message:"Product not found"})
-        }
-
-       // checking if the user is authorized
-        if(product.seller.toString() !== req.user._id.toString()){
-           return res.status(403).json({message:"You are not authorized"})
-        }
-
-        // updating the product
-        /* if we do realworld product do not use req.body because am hacken can access and change the seller id etc use
-        {
-    name: req.body.name,
-    price: req.body.price,
-    stock: req.body.stock
-  },
-  now only these three parts can be updated
-        */
-        const updated = await Product.findByIdAndUpdate(req.params.id, req.body, {
-            new: true
-        })
-         res.status(200).json({message:"Product updated successfully", updated})
-        
-    } catch (error) {
-        res.status(500).json({message:error.message})
-        
+  try {
+    // getting the inputs
+    const product = await Product.findById(req.params.id)
+    // checking if the product exists
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" })
     }
+
+    // checking if the user is authorized
+    if (product.seller.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "You are not authorized" })
+    }
+
+    // updating the product
+    /* if we do realworld product do not use req.body because am hacken can access and change the seller id etc use
+    {
+name: req.body.name,
+price: req.body.price,
+stock: req.body.stock
+},
+now only these three parts can be updated
+    */
+    const updated = await Product.findByIdAndUpdate(req.params.id, req.body, {
+      new: true
+    })
+    res.status(200).json({ message: "Product updated successfully", updated })
+
+  } catch (error) {
+    res.status(500).json({ message: error.message })
+
+  }
 }
 
 //delete
 
 export const deleteProduct = async (req, res) => {
-    try {
-      // getting product id
-        const product = await Product.findById(req.params.id)
+  try {
+    // getting product id
+    const product = await Product.findById(req.params.id)
 
-        // checking if the product exists
-        if(!product){
-            return res.status(404).json({message:"Product not found"})
-        }
-        // checking if the user is authorized /because only the seller can delete the product
-        if(product.seller.toString() !== req.user._id.toString()){
-           return res.status(403).json({message:"You are not authorized"})
-        }
-
-        // deleting the product
-        await Product.findByIdAndDelete(req.params.id)
-        res.status(200).json({message:"Product deleted successfully"})
-    } catch (error) {
-        res.status(500).json({message:error.message})
+    // checking if the product exists
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" })
     }
+    // checking if the user is authorized /because only the seller can delete the product
+    if (product.seller.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "You are not authorized" })
+    }
+
+    // deleting the product
+    await Product.findByIdAndDelete(req.params.id)
+    res.status(200).json({ message: "Product deleted successfully" })
+  } catch (error) {
+    res.status(500).json({ message: error.message })
+  }
 }
 
 //get all products
 export const getAllProducts = async (req, res) => {
-    try {
-      /* we are using populate so in front-end we can we additional info which is not in product schema
-      {products.map((p) => (
-  <div key={p._id}>
-    <h3>{p.name}</h3>
+  try {
+    /* we are using populate so in front-end we can we additional info which is not in product schema
+    {products.map((p) => (
+<div key={p._id}>
+  <h3>{p.name}</h3>
 
-    <p>Seller: {p.seller?.name}</p>
-  </div>
+  <p>Seller: {p.seller?.name}</p>
+</div>
 ))}
-  */
-        const products = await Product.find().populate("seller", "name")
-        res.status(200).json({message:"All products", products})
-    } catch (error) {
-        res.status(500).json({message:error.message})
-    }
+*/
+    const products = await Product.find().populate("seller", "name")
+    res.status(200).json({ message: "All products", products })
+  } catch (error) {
+    res.status(500).json({ message: error.message })
+  }
 }
 
 //get by id
 
 export const getProductById = async (req, res) => {
-    try {
-      //same concept i mentioned above
-        const product = await Product.findById(req.params.id).populate("seller", "name")
-        if(!product){
-            return res.status(404).json({message:"Product not found"})
-        }
-        res.status(200).json({message:"Product found", product})
-    } catch (error) {
-        res.status(500).json({message:error.message})
+  try {
+    //same concept i mentioned above
+    const product = await Product.findById(req.params.id).populate("seller", "name")
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" })
     }
+    res.status(200).json({ message: "Product found", product })
+  } catch (error) {
+    res.status(500).json({ message: error.message })
+  }
 }
 
 export const addReview = async (req, res) => {
   try {
     // getting the inputs
     const { rating, comment } = req.body;
-  // checking if the inputs are valid
+    // checking if the inputs are valid
     if (!rating || !comment) {
       return res.status(400).json({
         message: "Rating and comment are required",
       });
     }
 
-// getting the product
+    // getting the product
     const product = await Product.findById(req.params.id);
-// checking if the product exists
+    // checking if the product exists
     if (!product) {
       return res.status(404).json({
         message: "Product not found",
@@ -189,23 +200,23 @@ export const addReview = async (req, res) => {
       (r) => r.user.toString() === req.user._id.toString()
     );
 
-// checking if the user has already reviewed the product
+    // checking if the user has already reviewed the product
     if (alreadyReviewed) {
       return res.status(400).json({
         message: "You have already reviewed this product",
       });
     }
 
-// adding the review
+    // adding the review
     const review = {
       user: req.user._id,
       name: req.user.name,
       rating: Number(rating),
       comment,
     };
-   
- // adding the review
- //we are using push because review is an array
+
+    // adding the review
+    //we are using push because review is an array
     product.reviews.push(review);
     await product.save();
 
