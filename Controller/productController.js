@@ -87,12 +87,13 @@ export const updateProduct = async (req, res) => {
         }
 
         // updating the product
-        /* if we do realworld product do not use req.body because am hacken can acced and change the seller id etc use
+        /* if we do realworld product do not use req.body because am hacken can access and change the seller id etc use
         {
     name: req.body.name,
     price: req.body.price,
     stock: req.body.stock
   },
+  now only these three parts can be updated
         */
         const updated = await Product.findByIdAndUpdate(req.params.id, req.body, {
             new: true
